@@ -1,9 +1,0 @@
-job_name: RSMCalibrationInputDataGeneratorJob
-environment: {{ environment }}
-model: "{{ model | default('RSMV2') }}"
-use_tmp_feature_generator: {{ use_tmp_feature_generator | default(false) | lower }}
-extra_sampling_threshold: {{ extra_sampling_threshold | default(0.05) }}
-rsm_v2_feature_source_path: "{{ rsm_v2_feature_source_path | default('/featuresV2.json') }}"
-rsm_v2_feature_dest_path: "{{ rsm_v2_feature_dest_path | default('s3a://thetradedesk-mlplatform-us-east-1/configdata/' ~ ttd_write_env ~ '/audience/schema/RSMV2/v=1/' ~ date_time.strftime(audience_version_date_format) ~ '/features.json') }}"
-sub_folder: "{{ sub_folder | default('Full') }}"
-
