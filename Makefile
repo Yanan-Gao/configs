@@ -4,4 +4,4 @@ build:
 	python3 generate_configs.py
 
 clean:
-	rm -rf configs/*
+	python -c "import shutil, os; shutil.rmtree('configs', ignore_errors=True); os.makedirs('configs', exist_ok=True)"
