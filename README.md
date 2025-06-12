@@ -22,3 +22,4 @@ You can clean out generated files with:
 ```bash
 make clean
 ```
+The clean target uses Python so it works on Windows as well as Unix-like systems.
