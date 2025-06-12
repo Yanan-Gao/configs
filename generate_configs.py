@@ -3,6 +3,11 @@ import sys
 import subprocess
 import importlib
 
+# Ensure the script is executed with Python 3
+if sys.version_info.major < 3:
+    sys.stderr.write("This script requires Python 3.\n")
+    sys.exit(1)
+
 
 def ensure_dependency(pkg, import_name=None):
     """Install the given package if the import fails."""

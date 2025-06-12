@@ -2,6 +2,11 @@
 
 This repository demonstrates a simple configuration generation workflow using **Jinja2** templates and YAML overrides. Generated files are written into the `configs` directory and should not be manually edited.
 
+## Requirements
+
+* Python 3
+* `make`
+
 ## Structure
 ```
 config-templates/   # Jinja2 templates
