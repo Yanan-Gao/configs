@@ -1,0 +1,4 @@
+job_name: Imp2BrModelInferenceDataGenerator
+environment: {{ environment }}
+bidImpressionsS3Path: "{{ bidImpressionsS3Path | default('prod/bidsimpressions/') }}"
+feature_path: "{{ feature_path | default('s3://thetradedesk-mlplatform-us-east-1/models/prod/RSM/full_model/' ~ date_time.strftime(audience_version_date_format) ~ '/features.json') }}"
