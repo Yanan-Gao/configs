@@ -1,0 +1,3 @@
+job_name: AudiencePolicyTableGenerator
+environment: prod
+setting: prod
