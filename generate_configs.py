@@ -3,13 +3,25 @@ import datetime
 import yaml
 from jinja2 import Environment, FileSystemLoader
 
+
+class DateTimePlaceholder:
+    """Object that renders Jinja placeholders for date_time."""
+
+    def __str__(self):
+        return "{{ date_time }}"
+
+    def strftime(self, fmt):
+        # Preserve the formatting expression for run time resolution
+        return f"{{{{ date_time.strftime('{fmt}') }}}}"
+
 TEMPLATE_ROOT = 'config-templates'
 OVERRIDE_ROOT = 'config-overrides'
 OUTPUT_ROOT = 'configs'
 
 env = Environment(loader=FileSystemLoader(TEMPLATE_ROOT))
 env.globals.update(
-    date_time=datetime.datetime.utcnow(),
+    # Use a placeholder so date_time is resolved at run time
+    date_time=DateTimePlaceholder(),
     audience_version_date_format='%Y%m%d',
     ttd_write_env=os.environ.get('TTD_WRITE_ENV', 'prod'),
 )
