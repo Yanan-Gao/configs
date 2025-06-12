@@ -1,5 +1,23 @@
 import os
+import sys
+import subprocess
+import importlib
 import datetime
+
+
+def ensure_dependency(pkg, import_name=None):
+    """Install the given package if the import fails."""
+    import_name = import_name or pkg
+    try:
+        importlib.import_module(import_name)
+    except ImportError:
+        print(f"Installing missing dependency {pkg}...")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", pkg])
+
+
+ensure_dependency("PyYAML", "yaml")
+ensure_dependency("Jinja2", "jinja2")
+
 import yaml
 from jinja2 import Environment, FileSystemLoader
 

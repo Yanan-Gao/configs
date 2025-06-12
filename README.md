@@ -12,12 +12,12 @@ configs/            # Generated output
 The `generate_configs.py` script walks all override files and renders the matching template to produce a final config file.
 
 ## Usage
-Install dependencies and run the generator:
+Run the generator:
 ```bash
-pip install jinja2 PyYAML
 make build
 ```
-The `build` target runs `generate_configs.py` and populates `configs` with rendered YAML files.
+The `generate_configs.py` script automatically installs `Jinja2` and `PyYAML` if they
+are missing. The `build` target runs the script and populates `configs` with rendered YAML files.
 You can clean out generated files with:
 ```bash
 make clean
