@@ -2,7 +2,6 @@ import os
 import sys
 import subprocess
 import importlib
-import datetime
 
 
 def ensure_dependency(pkg, import_name=None):
@@ -51,6 +50,7 @@ def find_templates():
         for f in files:
             if f.endswith('.j2'):
                 rel = os.path.relpath(os.path.join(root, f), TEMPLATE_ROOT)
+                rel = rel.replace(os.sep, "/")  # ensure Jinja2-compatible separators
                 templates[rel] = env.get_template(rel)
     return templates
 
@@ -65,14 +65,14 @@ def generate_all():
             rel_override = os.path.relpath(override_path, OVERRIDE_ROOT)
             if not rel_override.startswith('audience' + os.sep):
                 continue
-            after_audience = rel_override[len('audience' + os.sep):]
+            after_audience = rel_override[len('audience' + os.sep):].replace(os.sep, "/")
             for t_path in templates:
                 job_path = os.path.splitext(t_path)[0]  # e.g. audience/Job/config.yml
-                if not job_path.startswith('audience' + os.sep):
+                if not job_path.startswith('audience/'):
                     continue
-                job_suffix = job_path[len('audience' + os.sep):]
+                job_suffix = job_path[len('audience/'):]
                 if after_audience.endswith(job_suffix):
-                    env_path = after_audience[:-len(job_suffix)].rstrip(os.sep)
+                    env_path = after_audience[:-len(job_suffix)].rstrip('/')
                     out_path = os.path.join(OUTPUT_ROOT, 'audience', env_path, job_suffix)
                     os.makedirs(os.path.dirname(out_path), exist_ok=True)
                     with open(override_path) as f:
