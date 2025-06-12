@@ -1,12 +1,18 @@
 import os
+import datetime
 import yaml
 from jinja2 import Environment, FileSystemLoader
 
 TEMPLATE_ROOT = 'config-templates'
 OVERRIDE_ROOT = 'config-overrides'
-OUTPUT_ROOT = 'job-config'
+OUTPUT_ROOT = 'configs'
 
 env = Environment(loader=FileSystemLoader(TEMPLATE_ROOT))
+env.globals.update(
+    date_time=datetime.datetime.utcnow(),
+    audience_version_date_format='%Y%m%d',
+    ttd_write_env=os.environ.get('TTD_WRITE_ENV', 'prod'),
+)
 
 
 def find_templates():
