@@ -63,17 +63,17 @@ def find_templates():
 def find_env_paths():
     """Return a set of environment paths defined in overrides."""
     env_paths = set()
-    base = os.path.join(OVERRIDE_ROOT, 'audience')
-    for root, _, files in os.walk(base):
+    for root, _, files in os.walk(OVERRIDE_ROOT):
         for fname in files:
             if not fname.endswith('.yml'):
                 continue
-            rel = os.path.relpath(os.path.join(root, fname), base)
-            env_dir = os.path.dirname(os.path.dirname(rel))
-            env_dir = env_dir.replace(os.sep, '/')
-            if env_dir == '.':
-                env_dir = ''
-            env_paths.add(env_dir)
+            rel = os.path.relpath(os.path.join(root, fname), OVERRIDE_ROOT)
+            parts = rel.split(os.sep)
+            if 'audience' not in parts:
+                continue
+            idx = parts.index('audience')
+            env_dir = os.path.join(*parts[:idx])
+            env_paths.add(env_dir.replace(os.sep, '/'))
     return env_paths
 
 
@@ -88,14 +88,14 @@ def generate_all():
                 continue
             job_suffix = job_path[len('audience/'):]  # Job/config.yml
 
-            override_file = os.path.join(OVERRIDE_ROOT, 'audience', env_path, job_suffix)
+            override_file = os.path.join(OVERRIDE_ROOT, env_path, 'audience', job_suffix)
             data = {}
             if os.path.exists(override_file):
                 with open(override_file) as f:
                     data = yaml.safe_load(f) or {}
 
             data.setdefault('environment', env_path)
-            out_path = os.path.join(OUTPUT_ROOT, 'audience', env_path, job_suffix)
+            out_path = os.path.join(OUTPUT_ROOT, env_path, 'audience', job_suffix)
             os.makedirs(os.path.dirname(out_path), exist_ok=True)
             rendered = template.render(**data)
             with open(out_path, 'w') as f:
