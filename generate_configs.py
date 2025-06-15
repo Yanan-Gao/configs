@@ -45,6 +45,7 @@ env.globals.update(
     # Use a placeholder so date_time is resolved at run time
     date_time=DateTimePlaceholder(),
     audience_version_date_format='%Y%m%d',
+    # Default write environment, will be overridden per environment
     ttd_write_env=os.environ.get('TTD_WRITE_ENV', 'prod'),
 )
 
@@ -82,6 +83,10 @@ def generate_all():
     env_paths = find_env_paths()
 
     for env_path in env_paths:
+        # Use the top-level directory as the write environment (e.g. prod,
+        # experiment, test). This ensures generated configs reference the
+        # matching environment regardless of subfolders like "yison-exp".
+        env.globals['ttd_write_env'] = env_path.split('/')[0]
         for t_path, template in templates.items():
             job_path = os.path.splitext(t_path)[0]  # e.g. audience/Job/config.yml
             if not job_path.startswith('audience/'):
