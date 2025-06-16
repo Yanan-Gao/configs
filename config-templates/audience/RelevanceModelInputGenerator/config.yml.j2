@@ -5,6 +5,7 @@ use_tmp_feature_generator: {{ use_tmp_feature_generator | default(false) | lower
 extra_sampling_threshold: {{ extra_sampling_threshold | default(0.05) }}
 rsm_v2_feature_source_path: "{{ rsm_v2_feature_source_path | default('/featuresV2.json') }}"
 rsm_v2_feature_dest_path: "{{ rsm_v2_feature_dest_path | default('s3a://thetradedesk-mlplatform-us-east-1/configdata/' ~ ttd_write_env ~ '/audience/schema/RSMV2/v=1/' ~ date_time.strftime(audience_version_date_format) ~ '/features.json') }}"
+feature_store_read_env: "{{ feature_store_read_env | default(ttd_write_env) }}"
 sub_folder: "{{ sub_folder | default('Full') }}"
 opt_in_seed_empty_tag_path: "{{ opt_in_seed_empty_tag_path | default('s3a://thetradedesk-mlplatform-us-east-1/data/' ~ ttd_write_env ~ '/audience/RSMV2/Seed_None/v=1/' ~ date_time.strftime(audience_version_date_format) ~ '/_' ~ (sub_folder | default('Full')) ~ '_EMPTY') }}"
 density_feature_read_path_without_slash: "{{ density_feature_read_path_without_slash | default('profiles/source=bidsimpression/index=TDID/job=DailyTDIDDensityScoreSplitJob/v=1') }}"
