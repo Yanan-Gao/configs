@@ -24,6 +24,7 @@ ensure_dependency("Jinja2", "jinja2")
 
 import yaml
 from jinja2 import Environment, FileSystemLoader, StrictUndefined, exceptions
+import re
 
 
 class DateTimePlaceholder:
@@ -102,10 +103,18 @@ def generate_all():
             try:
                 rendered = template.render(**data)
             except exceptions.UndefinedError as e:
-                print(
-                    f"Error generating {env_path}/{job_suffix}: {e}",
-                    file=sys.stderr,
-                )
+                missing_match = re.search(r"'([^']+)' is undefined", str(e))
+                if missing_match:
+                    missing_var = missing_match.group(1)
+                    print(
+                        f"Skipping {env_path}/{job_suffix}: required variable '{missing_var}' has no value (override file: {override_file})",
+                        file=sys.stderr,
+                    )
+                else:
+                    print(
+                        f"Skipping {env_path}/{job_suffix} due to missing value: {e}",
+                        file=sys.stderr,
+                    )
                 continue
 
             os.makedirs(os.path.dirname(out_path), exist_ok=True)
