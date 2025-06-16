@@ -23,7 +23,7 @@ ensure_dependency("PyYAML", "yaml")
 ensure_dependency("Jinja2", "jinja2")
 
 import yaml
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, StrictUndefined, exceptions
 
 
 class DateTimePlaceholder:
@@ -40,7 +40,10 @@ TEMPLATE_ROOT = 'config-templates'
 OVERRIDE_ROOT = 'config-overrides'
 OUTPUT_ROOT = 'configs'
 
-env = Environment(loader=FileSystemLoader(TEMPLATE_ROOT))
+env = Environment(
+    loader=FileSystemLoader(TEMPLATE_ROOT),
+    undefined=StrictUndefined,
+)
 env.globals.update(
     # Use a placeholder so date_time is resolved at run time
     date_time=DateTimePlaceholder(),
@@ -96,8 +99,16 @@ def generate_all():
 
             data.setdefault('environment', env_path)
             out_path = os.path.join(OUTPUT_ROOT, env_path, 'audience', job_suffix)
+            try:
+                rendered = template.render(**data)
+            except exceptions.UndefinedError as e:
+                print(
+                    f"Error generating {env_path}/{job_suffix}: {e}",
+                    file=sys.stderr,
+                )
+                continue
+
             os.makedirs(os.path.dirname(out_path), exist_ok=True)
-            rendered = template.render(**data)
             with open(out_path, 'w') as f:
                 f.write(rendered)
             print(f'Wrote {out_path}')
