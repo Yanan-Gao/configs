@@ -102,10 +102,24 @@ def generate_all():
             try:
                 rendered = template.render(**data)
             except exceptions.UndefinedError as e:
-                print(
-                    f"Error generating {env_path}/{job_suffix}: {e}",
-                    file=sys.stderr,
-                )
+                message = str(e)
+                missing_key = None
+                if "'" in message:
+                    parts = message.split("'")
+                    if len(parts) >= 2:
+                        missing_key = parts[1]
+                if missing_key:
+                    print(
+                        f"Error generating {env_path}/{job_suffix}: "
+                        f"configuration '{missing_key}' is required but no value was provided "
+                        f"in {override_file}",
+                        file=sys.stderr,
+                    )
+                else:
+                    print(
+                        f"Error generating {env_path}/{job_suffix}: {message}",
+                        file=sys.stderr,
+                    )
                 continue
 
             os.makedirs(os.path.dirname(out_path), exist_ok=True)
