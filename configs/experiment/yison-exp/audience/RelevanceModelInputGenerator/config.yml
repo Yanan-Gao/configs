@@ -4,9 +4,9 @@ model: "RSMV2"
 use_tmp_feature_generator: false
 extra_sampling_threshold: 0.05
 rsm_v2_feature_source_path: "/featuresV2.json"
-rsm_v2_feature_dest_path: "s3a://thetradedesk-mlplatform-us-east-1/configdata/prod/audience/schema/RSMV2/v=1/{{ date_time.strftime('%Y%m%d') }}/features.json"
+rsm_v2_feature_dest_path: "s3a://thetradedesk-mlplatform-us-east-1/configdata/experiment/audience/schema/RSMV2/v=1/{{ date_time.strftime('%Y%m%d') }}/features.json"
 sub_folder: "Full"
-opt_in_seed_empty_tag_path: "s3a://thetradedesk-mlplatform-us-east-1/data/prod/audience/RSMV2/Seed_None/v=1/{{ date_time.strftime('%Y%m%d') }}/_Full_EMPTY"
+opt_in_seed_empty_tag_path: "s3a://thetradedesk-mlplatform-us-east-1/data/experiment/audience/RSMV2/Seed_None/v=1/{{ date_time.strftime('%Y%m%d') }}/_Full_EMPTY"
 density_feature_read_path_without_slash: "profiles/source=bidsimpression/index=TDID/job=DailyTDIDDensityScoreSplitJob/v=1"
 sensitive_feature_columns: ""
 persist_holdout_set: true

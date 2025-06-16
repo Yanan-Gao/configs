@@ -48,7 +48,6 @@ env.globals.update(
     # Use a placeholder so date_time is resolved at run time
     date_time=DateTimePlaceholder(),
     audience_version_date_format='%Y%m%d',
-    ttd_write_env=os.environ.get('TTD_WRITE_ENV', 'prod'),
 )
 
 
@@ -98,6 +97,10 @@ def generate_all():
                     data = yaml.safe_load(f) or {}
 
             data.setdefault('environment', env_path)
+            # Use the top-level override directory (e.g. 'prod', 'experiment',
+            # 'test') as the write environment for template paths.
+            partition = env_path.split('/')[0]
+            data.setdefault('ttd_write_env', partition)
             out_path = os.path.join(OUTPUT_ROOT, env_path, 'audience', job_suffix)
             try:
                 rendered = template.render(**data)
