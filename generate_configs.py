@@ -40,9 +40,10 @@ TEMPLATE_ROOT = 'config-templates'
 OVERRIDE_ROOT = 'config-overrides'
 OUTPUT_ROOT = 'configs'
 
-# Each audience job now has two templates: ``behavioral_config.yml.j2``
-# and ``outputs.yml.j2``. These render directly to ``behavioral_config.yml``
-# and ``outputs.yml`` under ``configs`` with plain key/value pairs.
+# Each job group contains templates for individual jobs. Each job has two
+# template files: ``behavioral_config.yml.j2`` and ``outputs.yml.j2``. These
+# render directly to ``behavioral_config.yml`` and ``outputs.yml`` under
+# ``configs`` with plain key/value pairs.
 
 env = Environment(
     loader=FileSystemLoader(TEMPLATE_ROOT),
@@ -51,7 +52,7 @@ env = Environment(
 env.globals.update(
     # Use a placeholder so date_time is resolved at run time
     date_time=DateTimePlaceholder(),
-    audience_version_date_format='%Y%m%d',
+    version_date_format='%Y%m%d',
 )
 
 
@@ -66,8 +67,14 @@ def find_templates():
     return templates
 
 
-def find_env_paths():
-    """Return a set of environment paths defined in overrides."""
+def find_groups():
+    """Return the list of top-level job groups under TEMPLATE_ROOT."""
+    return [d for d in os.listdir(TEMPLATE_ROOT)
+            if os.path.isdir(os.path.join(TEMPLATE_ROOT, d))]
+
+
+def find_env_paths(group):
+    """Return a set of environment paths defined in overrides for the group."""
     env_paths = set()
     for root, _, files in os.walk(OVERRIDE_ROOT):
         for fname in files:
@@ -75,9 +82,9 @@ def find_env_paths():
                 continue
             rel = os.path.relpath(os.path.join(root, fname), OVERRIDE_ROOT)
             parts = rel.split(os.sep)
-            if 'audience' not in parts:
+            if group not in parts:
                 continue
-            idx = parts.index('audience')
+            idx = parts.index(group)
             env_dir = os.path.join(*parts[:idx])
             env_paths.add(env_dir.replace(os.sep, '/'))
     return env_paths
@@ -85,70 +92,74 @@ def find_env_paths():
 
 def generate_all():
     templates = find_templates()
-    env_paths = find_env_paths()
+    groups = find_groups()
 
-    for env_path in env_paths:
-        for t_path, template in templates.items():
-            job_path = os.path.splitext(t_path)[0]
-            if not job_path.startswith('audience/'):
-                continue
-            job_dir, filename = os.path.split(job_path)
-            job_name = job_dir[len('audience/'):]  # Job name
+    for group in groups:
+        env_paths = find_env_paths(group)
 
-            override_file = os.path.join(
-                OVERRIDE_ROOT,
-                env_path,
-                'audience',
-                job_name,
-                'config.yml',
-            )
-            data = {}
-            if os.path.exists(override_file):
-                with open(override_file) as f:
-                    data = yaml.safe_load(f) or {}
+        for env_path in env_paths:
+            for t_path, template in templates.items():
+                job_path = os.path.splitext(t_path)[0]
+                if not job_path.startswith(f'{group}/'):
+                    continue
+                job_dir, filename = os.path.split(job_path)
+                job_name = job_dir[len(f'{group}/'):]
 
-            data.setdefault('environment', env_path)
-            # Use the top-level override directory (e.g. 'prod', 'experiment',
-            # 'test') as the write environment for template paths.
-            partition = env_path.split('/')[0]
-            data.setdefault('ttd_write_env', partition)
-            out_dir = os.path.join(OUTPUT_ROOT, env_path, 'audience', job_name)
-            os.makedirs(out_dir, exist_ok=True)
-            out_path = os.path.join(out_dir, filename)
-            try:
-                rendered = template.render(**data)
-            except exceptions.UndefinedError as e:
-                message = str(e)
-                missing_key = None
-                if "'" in message:
-                    parts = message.split("'")
-                    if len(parts) >= 2:
-                        missing_key = parts[1]
-                if missing_key:
-                    print(
-                        f"Error generating {env_path}/{job_name}/{filename}: "
-                        f"configuration '{missing_key}' is required but no value was provided "
-                        f"in {override_file}",
-                        file=sys.stderr,
-                    )
-                else:
-                    print(
-                        f"Error generating {env_path}/{job_name}/{filename}: {message}",
-                        file=sys.stderr,
-                    )
-                continue
-
-            data_dict = yaml.safe_load(rendered) or {}
-            # allow templates to include optional 'job_name' field but ignore it
-            data_dict.pop('job_name', None)
-
-            with open(out_path, 'w') as f:
-                yaml.safe_dump(
-                    data_dict,
-                    f,
-                    sort_keys=False,
+                override_file = os.path.join(
+                    OVERRIDE_ROOT,
+                    env_path,
+                    group,
+                    job_name,
+                    'config.yml',
                 )
-            print(f'Wrote {out_path}')
+
+                data = {}
+                if os.path.exists(override_file):
+                    with open(override_file) as f:
+                        data = yaml.safe_load(f) or {}
+
+                data.setdefault('environment', env_path)
+                # Use the top-level override directory (e.g. 'prod', 'experiment',
+                # 'test') as the write environment for template paths.
+                partition = env_path.split('/')[0]
+                data.setdefault('ttd_write_env', partition)
+                out_dir = os.path.join(OUTPUT_ROOT, env_path, group, job_name)
+                os.makedirs(out_dir, exist_ok=True)
+                out_path = os.path.join(out_dir, filename)
+                try:
+                    rendered = template.render(**data)
+                except exceptions.UndefinedError as e:
+                    message = str(e)
+                    missing_key = None
+                    if "'" in message:
+                        parts = message.split("'")
+                        if len(parts) >= 2:
+                            missing_key = parts[1]
+                    if missing_key:
+                        print(
+                            f"Error generating {env_path}/{job_name}/{filename}: "
+                            f"configuration '{missing_key}' is required but no value was provided "
+                            f"in {override_file}",
+                            file=sys.stderr,
+                        )
+                    else:
+                        print(
+                            f"Error generating {env_path}/{job_name}/{filename}: {message}",
+                            file=sys.stderr,
+                        )
+                    continue
+
+                data_dict = yaml.safe_load(rendered) or {}
+                # allow templates to include optional 'job_name' field but ignore it
+                data_dict.pop('job_name', None)
+
+                with open(out_path, 'w') as f:
+                    yaml.safe_dump(
+                        data_dict,
+                        f,
+                        sort_keys=False,
+                    )
+                print(f'Wrote {out_path}')
 
 
 if __name__ == '__main__':
