@@ -90,12 +90,31 @@ def find_env_paths(group):
     return env_paths
 
 
-def generate_all():
+def generate_all(group_filter='all', env_filter='all', job_filter='all'):
+    # If a higher-level filter is set to 'all', ignore lower levels
+    if group_filter == 'all':
+        env_filter = 'all'
+        job_filter = 'all'
+    elif env_filter == 'all':
+        job_filter = 'all'
     templates = find_templates()
     groups = find_groups()
+    if group_filter != 'all':
+        groups = [g for g in groups if g == group_filter]
+        if not groups:
+            print(f"Group '{group_filter}' not found", file=sys.stderr)
+            return
 
     for group in groups:
         env_paths = find_env_paths(group)
+        if env_filter != 'all':
+            env_paths = [e for e in env_paths if e == env_filter]
+            if not env_paths:
+                print(
+                    f"Environment '{env_filter}' not found for group '{group}'",
+                    file=sys.stderr,
+                )
+                continue
 
         for env_path in env_paths:
             for t_path, template in templates.items():
@@ -104,6 +123,9 @@ def generate_all():
                     continue
                 job_dir, filename = os.path.split(job_path)
                 job_name = job_dir[len(f'{group}/'):]
+
+                if job_filter != 'all' and job_name != job_filter:
+                    continue
 
                 override_file = os.path.join(
                     OVERRIDE_ROOT,
@@ -162,5 +184,29 @@ def generate_all():
                 print(f'Wrote {out_path}')
 
 
+def parse_cli_args(argv):
+    """Parse simple key=value arguments from ``argv``."""
+    group = None
+    env_name = None
+    job = None
+    for arg in argv:
+        if '=' in arg:
+            key, value = arg.split('=', 1)
+            if key == 'group':
+                group = value
+            elif key == 'env':
+                env_name = value
+            elif key == 'job':
+                job = value
+    if not group or not env_name or not job:
+        print(
+            "Usage: generate_configs.py group=<group|all> env=<env|all> job=<job|all>",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    return group, env_name, job
+
+
 if __name__ == '__main__':
-    generate_all()
+    group, env_name, job = parse_cli_args(sys.argv[1:])
+    generate_all(group, env_name, job)
