@@ -1,0 +1,29 @@
+environment: {{ environment }}
+model: "{{ model | default('RSMV2') }}"
+use_tmp_feature_generator: {{ use_tmp_feature_generator | default(false) | lower }}
+extra_sampling_threshold: {{ extra_sampling_threshold | default(0.05) }}
+rsm_v2_feature_source_path: "{{ rsm_v2_feature_source_path | default('/featuresV2.json') }}"
+rsm_v2_feature_dest_path: "{{ rsm_v2_feature_dest_path | default('s3a://thetradedesk-mlplatform-us-east-1/configdata/' ~ ttd_write_env ~ '/audience/schema/RSMV2/v=1/' ~ date_time.strftime(audience_version_date_format) ~ '/features.json') }}"
+feature_store_read_env: "{{ feature_store_read_env | default(ttd_write_env) }}"
+sub_folder: "{{ sub_folder | default('Full') }}"
+opt_in_seed_empty_tag_path: "{{ opt_in_seed_empty_tag_path | default('s3a://thetradedesk-mlplatform-us-east-1/data/' ~ ttd_write_env ~ '/audience/RSMV2/Seed_None/v=1/' ~ date_time.strftime(audience_version_date_format) ~ '/_' ~ (sub_folder | default('Full')) ~ '_EMPTY') }}"
+density_feature_read_path_without_slash: "{{ density_feature_read_path_without_slash | default('profiles/source=bidsimpression/index=TDID/job=DailyTDIDDensityScoreSplitJob/v=1') }}"
+sensitive_feature_columns: "{{ sensitive_feature_columns | default('') }}"
+persist_holdout_set: {{ persist_holdout_set | default(true) | lower }}
+opt_in_seed_type: "{{ opt_in_seed_type | default('Active') }}"
+opt_in_seed_filter_expr: "{{ opt_in_seed_filter_expr | default('true') }}"
+pos_neg_ratio: {{ pos_neg_ratio | default(50) }}
+lower_limit_pos_cnt_per_seed: {{ lower_limit_pos_cnt_per_seed | default(200) }}
+rsm_v2_user_sample_salt: "{{ rsm_v2_user_sample_salt | default('TRM') }}"
+rsm_v2_population_user_sample_index: "{{ rsm_v2_population_user_sample_index | default('3,5,7') }}"
+rsm_v2_user_sample_ratio: {{ rsm_v2_user_sample_ratio | default(1) }}
+sampler_name: "{{ sampler_name | default('RSMV2') }}"
+override_mode: {{ override_mode | default(false) | lower }}
+split_remainder_hash_salt: "{{ split_remainder_hash_salt | default('split_RSMV2') }}"
+up_limit_pos_cnt_per_seed: {{ up_limit_pos_cnt_per_seed | default(40000) }}
+save_intermediate_result: {{ save_intermediate_result | default(false) | lower }}
+intermediate_result_base_path_end_without_slash: "{{ intermediate_result_base_path_end_without_slash | default('thetradedesk-mlplatform-us-east-1/users/yixuan.zheng/allinone/dataset/' ~ (sub_folder | default('Full'))) }}"
+max_label_length_per_row: {{ max_label_length_per_row | default(50) }}
+min_row_nums_per_partition: {{ min_row_nums_per_partition | default(100000) }}
+train_val_holdout_total_splits: {{ train_val_holdout_total_splits | default(10) }}
+active_seed_id_white_list: "{{ active_seed_id_white_list | default('') }}"

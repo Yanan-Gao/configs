@@ -19,7 +19,11 @@ first directory level. For example, overrides for the `prod` environment live
 under `config-overrides/prod/audience/` and generated files are written to
 `configs/prod/audience/`.
 
-The `generate_configs.py` script walks all override files and renders the matching template to produce a final config file.
+Each job template provides two files: `behavioral_config.yml.j2` for the
+behavior-related settings and `outputs.yml.j2` for any output paths. Running the
+generator renders these templates to `behavioral_config.yml` and `outputs.yml`
+under the corresponding job directory. Each generated YAML file contains plain
+key/value pairs.
 
 ## Usage
 Run the generator:

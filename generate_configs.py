@@ -40,6 +40,10 @@ TEMPLATE_ROOT = 'config-templates'
 OVERRIDE_ROOT = 'config-overrides'
 OUTPUT_ROOT = 'configs'
 
+# Each audience job now has two templates: ``behavioral_config.yml.j2``
+# and ``outputs.yml.j2``. These render directly to ``behavioral_config.yml``
+# and ``outputs.yml`` under ``configs`` with plain key/value pairs.
+
 env = Environment(
     loader=FileSystemLoader(TEMPLATE_ROOT),
     undefined=StrictUndefined,
@@ -85,12 +89,19 @@ def generate_all():
 
     for env_path in env_paths:
         for t_path, template in templates.items():
-            job_path = os.path.splitext(t_path)[0]  # e.g. audience/Job/config.yml
+            job_path = os.path.splitext(t_path)[0]
             if not job_path.startswith('audience/'):
                 continue
-            job_suffix = job_path[len('audience/'):]  # Job/config.yml
+            job_dir, filename = os.path.split(job_path)
+            job_name = job_dir[len('audience/'):]  # Job name
 
-            override_file = os.path.join(OVERRIDE_ROOT, env_path, 'audience', job_suffix)
+            override_file = os.path.join(
+                OVERRIDE_ROOT,
+                env_path,
+                'audience',
+                job_name,
+                'config.yml',
+            )
             data = {}
             if os.path.exists(override_file):
                 with open(override_file) as f:
@@ -101,7 +112,9 @@ def generate_all():
             # 'test') as the write environment for template paths.
             partition = env_path.split('/')[0]
             data.setdefault('ttd_write_env', partition)
-            out_path = os.path.join(OUTPUT_ROOT, env_path, 'audience', job_suffix)
+            out_dir = os.path.join(OUTPUT_ROOT, env_path, 'audience', job_name)
+            os.makedirs(out_dir, exist_ok=True)
+            out_path = os.path.join(out_dir, filename)
             try:
                 rendered = template.render(**data)
             except exceptions.UndefinedError as e:
@@ -113,21 +126,28 @@ def generate_all():
                         missing_key = parts[1]
                 if missing_key:
                     print(
-                        f"Error generating {env_path}/{job_suffix}: "
+                        f"Error generating {env_path}/{job_name}/{filename}: "
                         f"configuration '{missing_key}' is required but no value was provided "
                         f"in {override_file}",
                         file=sys.stderr,
                     )
                 else:
                     print(
-                        f"Error generating {env_path}/{job_suffix}: {message}",
+                        f"Error generating {env_path}/{job_name}/{filename}: {message}",
                         file=sys.stderr,
                     )
                 continue
 
-            os.makedirs(os.path.dirname(out_path), exist_ok=True)
+            data_dict = yaml.safe_load(rendered) or {}
+            # allow templates to include optional 'job_name' field but ignore it
+            data_dict.pop('job_name', None)
+
             with open(out_path, 'w') as f:
-                f.write(rendered)
+                yaml.safe_dump(
+                    data_dict,
+                    f,
+                    sort_keys=False,
+                )
             print(f'Wrote {out_path}')
 
 
