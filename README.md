@@ -15,9 +15,11 @@ configs/            # Generated output
 ```
 
 Override files and generated configs are organized with the environment as the
-first directory level. For example, overrides for the `prod` environment live
-under `config-overrides/prod/audience/` and generated files are written to
-`configs/prod/audience/`.
+first directory level. Under each environment you can have one or more *group*
+directories that contain related jobs. For example, overrides for the `prod`
+environment might live under `config-overrides/prod/audience/` and the
+generated files would be written to `configs/prod/audience/`. Future groups
+such as `feature_store` or `kongming` can use the same pattern.
 
 Each job template provides two files: `behavioral_config.yml.j2` for the
 behavior-related settings and `outputs.yml.j2` for any output paths. Running the
