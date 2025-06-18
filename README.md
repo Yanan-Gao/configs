@@ -32,17 +32,21 @@ Run the generator:
 ```bash
 make build
 ```
-The Makefile passes `group`, `env` and `job` parameters to
+The Makefile passes `group`, `env` and `exp` parameters to
 `generate_configs.py`. They default to `all`, so the above command
 generates every configuration.
-You can also restrict the generation to a specific group, environment or job.
-Each argument is required but may be set to `all` to include everything under
-that category.
+You can also restrict the generation to a specific group, environment or
+experiment. Each argument is required but may be set to `all` to include
+everything under that category. When a higher-level option is set to
+`all`, lower levels must also be `all`.
+For example, `group=all env=prod` is invalid because specifying an
+environment requires a specific group.
 ```bash
-make build group=audience env=prod job=CalibrationInputDataGeneratorJob
+make build group=audience env=experiment exp=yison-exp
 ```
 The `generate_configs.py` script automatically installs `Jinja2` and `PyYAML` if they
-are missing. The `build` target runs the script and populates `configs` with rendered YAML files.
+are missing. The `build` target runs the script and populates `configs` with rendered
+YAML files.
 You can clean out generated files with:
 ```bash
 make clean

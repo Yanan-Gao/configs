@@ -90,13 +90,14 @@ def find_env_paths(group):
     return env_paths
 
 
-def generate_all(group_filter='all', env_filter='all', job_filter='all'):
+def generate_all(group_filter='all', env_filter='all', exp_filter='all'):
+    """Generate configuration files based on the provided filters."""
     # If a higher-level filter is set to 'all', ignore lower levels
     if group_filter == 'all':
         env_filter = 'all'
-        job_filter = 'all'
+        exp_filter = 'all'
     elif env_filter == 'all':
-        job_filter = 'all'
+        exp_filter = 'all'
     templates = find_templates()
     groups = find_groups()
     if group_filter != 'all':
@@ -107,16 +108,26 @@ def generate_all(group_filter='all', env_filter='all', job_filter='all'):
 
     for group in groups:
         env_paths = find_env_paths(group)
-        if env_filter != 'all':
-            env_paths = [e for e in env_paths if e == env_filter]
-            if not env_paths:
-                print(
-                    f"Environment '{env_filter}' not found for group '{group}'",
-                    file=sys.stderr,
-                )
-                continue
-
+        # env_paths are strings like 'prod' or 'experiment/exp1'
+        filtered_paths = []
         for env_path in env_paths:
+            parts = env_path.split('/')
+            env_name = parts[0]
+            exp_name = parts[1] if len(parts) > 1 else None
+            if env_filter != 'all' and env_name != env_filter:
+                continue
+            if exp_filter != 'all' and exp_name != exp_filter:
+                continue
+            filtered_paths.append(env_path)
+
+        if env_filter != 'all' and not filtered_paths:
+            print(
+                f"Environment '{env_filter}' not found for group '{group}'",
+                file=sys.stderr,
+            )
+            continue
+
+        for env_path in filtered_paths:
             for t_path, template in templates.items():
                 job_path = os.path.splitext(t_path)[0]
                 if not job_path.startswith(f'{group}/'):
@@ -124,8 +135,7 @@ def generate_all(group_filter='all', env_filter='all', job_filter='all'):
                 job_dir, filename = os.path.split(job_path)
                 job_name = job_dir[len(f'{group}/'):]
 
-                if job_filter != 'all' and job_name != job_filter:
-                    continue
+
 
                 override_file = os.path.join(
                     OVERRIDE_ROOT,
@@ -188,7 +198,7 @@ def parse_cli_args(argv):
     """Parse simple key=value arguments from ``argv``."""
     group = None
     env_name = None
-    job = None
+    exp = None
     for arg in argv:
         if '=' in arg:
             key, value = arg.split('=', 1)
@@ -196,17 +206,29 @@ def parse_cli_args(argv):
                 group = value
             elif key == 'env':
                 env_name = value
-            elif key == 'job':
-                job = value
-    if not group or not env_name or not job:
+            elif key == 'exp':
+                exp = value
+    if not group or not env_name or exp is None:
         print(
-            "Usage: generate_configs.py group=<group|all> env=<env|all> job=<job|all>",
+            "Usage: generate_configs.py group=<group|all> env=<env|all> exp=<exp|all>",
             file=sys.stderr,
         )
         sys.exit(1)
-    return group, env_name, job
+    if group == 'all' and (env_name != 'all' or exp != 'all'):
+        print(
+            "When group=all, env and exp must be 'all' as well",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    if env_name == 'all' and exp != 'all':
+        print(
+            "When env=all, exp must be 'all'",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    return group, env_name, exp
 
 
 if __name__ == '__main__':
-    group, env_name, job = parse_cli_args(sys.argv[1:])
-    generate_all(group, env_name, job)
+    group, env_name, exp = parse_cli_args(sys.argv[1:])
+    generate_all(group, env_name, exp)
