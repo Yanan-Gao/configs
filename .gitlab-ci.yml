@@ -1,0 +1,14 @@
+stages:
+  - deploy
+
+deploy_configs:
+  image: python:3.9
+  stage: deploy
+  before_script:
+    - pip install --quiet awscli
+  script:
+    - aws s3 sync configs s3://thetradedesk-mlplatform-us-east-1/configdata/
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master" && $CI_PIPELINE_SOURCE == "push"'
+      when: on_success
+    - when: never
