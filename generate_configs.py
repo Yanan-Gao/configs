@@ -195,37 +195,67 @@ def generate_all(group_filter='all', env_filter='all', exp_filter='all'):
 
 
 def parse_cli_args(argv):
-    """Parse simple key=value arguments from ``argv``."""
-    group = None
+    """Parse simple key=value arguments from ``argv`` in env->exp->group order."""
     env_name = None
     exp = None
+    group = None
     for arg in argv:
         if '=' in arg:
             key, value = arg.split('=', 1)
-            if key == 'group':
-                group = value
-            elif key == 'env':
+            if key == 'env':
                 env_name = value
             elif key == 'exp':
                 exp = value
-    if not group or not env_name or exp is None:
+            elif key == 'group':
+                group = value
+    if env_name is None:
         print(
-            "Usage: generate_configs.py group=<group|all> env=<env|all> exp=<exp|all>",
+            "Usage: generate_configs.py env=<env|all> exp=<exp|all> group=<group|all>",
             file=sys.stderr,
         )
         sys.exit(1)
-    if group == 'all' and (env_name != 'all' or exp != 'all'):
-        print(
-            "When group=all, env and exp must be 'all' as well",
-            file=sys.stderr,
-        )
+
+    if env_name == 'all':
+        if exp is not None or group is not None:
+            print(
+                "When env=all, exp and group must not be provided",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+        exp = 'all'
+        group = 'all'
+    elif env_name in ("experiment", "test"):
+        if exp is None:
+            print(
+                "exp parameter is required when env is experiment or test",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+        if group is None:
+            print(
+                "group parameter is required when env is experiment or test",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+        # Missing values are not allowed; 'all' must be explicit
+        if exp == "":
+            print("exp must not be empty", file=sys.stderr)
+            sys.exit(1)
+        if group == "":
+            print("group must not be empty", file=sys.stderr)
+            sys.exit(1)
+    elif env_name == "prod":
+        if exp is not None:
+            print("exp parameter is not allowed when env=prod", file=sys.stderr)
+            sys.exit(1)
+        if group is None:
+            print("group parameter is required when env=prod", file=sys.stderr)
+            sys.exit(1)
+        exp = 'all'
+    else:
+        print(f"Unknown env '{env_name}'", file=sys.stderr)
         sys.exit(1)
-    if env_name == 'all' and exp != 'all':
-        print(
-            "When env=all, exp must be 'all'",
-            file=sys.stderr,
-        )
-        sys.exit(1)
+
     return group, env_name, exp
 
 

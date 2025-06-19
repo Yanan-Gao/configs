@@ -32,17 +32,21 @@ Run the generator:
 ```bash
 make build
 ```
-The Makefile passes `group`, `env` and `exp` parameters to
-`generate_configs.py`. They default to `all`, so the above command
-generates every configuration.
-You can also restrict the generation to a specific group, environment or
-experiment. Each argument is required but may be set to `all` to include
-everything under that category. When a higher-level option is set to
-`all`, lower levels must also be `all`.
-For example, `group=all env=prod` is invalid because specifying an
-environment requires a specific group.
+The Makefile forwards three parameters to `generate_configs.py` in the order
+they exist on disk: `env`, `exp` and `group`. None of them default to `all` so
+you must specify the desired value explicitly. To generate every configuration
+you can pass `env=all`:
 ```bash
-make build group=audience env=experiment exp=yison-exp
+make build env=all
+```
+When a higher-level option is set to `all` no lower level options may be
+specified. For example, it is invalid to provide `exp` or `group` when
+`env=all`.
+When `env` is `experiment` or `test` you must also provide an `exp` value. The
+`prod` environment does not take an experiment parameter.
+To generate the configs for a single experiment and group you might run:
+```bash
+make build env=experiment exp=yison-exp group=audience
 ```
 The `generate_configs.py` script automatically installs `Jinja2` and `PyYAML` if they
 are missing. The `build` target runs the script and populates `configs` with rendered
