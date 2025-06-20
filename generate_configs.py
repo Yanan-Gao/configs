@@ -68,66 +68,72 @@ def find_templates():
 
 
 def find_groups():
-    """Return the list of top-level job groups under TEMPLATE_ROOT."""
+    """Return the list of top-level job groups under ``TEMPLATE_ROOT``."""
     return [d for d in os.listdir(TEMPLATE_ROOT)
             if os.path.isdir(os.path.join(TEMPLATE_ROOT, d))]
 
+def find_env_roots():
+    """Return all environment paths (e.g. ``prod`` or ``experiment/exp1``)."""
+    envs = []
+    for env in os.listdir(OVERRIDE_ROOT):
+        env_dir = os.path.join(OVERRIDE_ROOT, env)
+        if not os.path.isdir(env_dir):
+            continue
+        if env in ("experiment", "test"):
+            for exp in os.listdir(env_dir):
+                exp_dir = os.path.join(env_dir, exp)
+                if os.path.isdir(exp_dir):
+                    envs.append(f"{env}/{exp}")
+        else:
+            envs.append(env)
+    return envs
 
-def find_env_paths(group):
-    """Return a set of environment paths defined in overrides for the group."""
-    env_paths = set()
-    for root, _, files in os.walk(OVERRIDE_ROOT):
-        for fname in files:
-            if not fname.endswith('.yml'):
-                continue
-            rel = os.path.relpath(os.path.join(root, fname), OVERRIDE_ROOT)
-            parts = rel.split(os.sep)
-            if group not in parts:
-                continue
-            idx = parts.index(group)
-            env_dir = os.path.join(*parts[:idx])
-            env_paths.add(env_dir.replace(os.sep, '/'))
-    return env_paths
+
+def find_groups_for_env(env_path):
+    """Return groups defined under the given environment path."""
+    groups = []
+    base = os.path.join(OVERRIDE_ROOT, env_path)
+    if not os.path.isdir(base):
+        return groups
+    for entry in os.listdir(base):
+        if os.path.isdir(os.path.join(base, entry)):
+            groups.append(entry)
+    return groups
 
 
-def generate_all(group_filter='all', env_filter='all', exp_filter='all'):
-    """Generate configuration files based on the provided filters."""
+def generate_all(env_filter='all', exp_filter='all', group_filter='all'):
+    """Generate configuration files following the env -> exp -> group layout."""
     # If a higher-level filter is set to 'all', ignore lower levels
-    if group_filter == 'all':
-        env_filter = 'all'
+    if env_filter == 'all':
         exp_filter = 'all'
-    elif env_filter == 'all':
-        exp_filter = 'all'
+        group_filter = 'all'
+    elif exp_filter == 'all':
+        group_filter = 'all'
     templates = find_templates()
-    groups = find_groups()
-    if group_filter != 'all':
-        groups = [g for g in groups if g == group_filter]
-        if not groups:
-            print(f"Group '{group_filter}' not found", file=sys.stderr)
+    env_paths = find_env_roots()
+    if env_filter != 'all':
+        env_paths = [p for p in env_paths if p.startswith(env_filter)]
+        if not env_paths:
+            print(f"Environment '{env_filter}' not found", file=sys.stderr)
             return
 
-    for group in groups:
-        env_paths = find_env_paths(group)
-        # env_paths are strings like 'prod' or 'experiment/exp1'
-        filtered_paths = []
-        for env_path in env_paths:
-            parts = env_path.split('/')
-            env_name = parts[0]
-            exp_name = parts[1] if len(parts) > 1 else None
-            if env_filter != 'all' and env_name != env_filter:
-                continue
-            if exp_filter != 'all' and exp_name != exp_filter:
-                continue
-            filtered_paths.append(env_path)
-
-        if env_filter != 'all' and not filtered_paths:
-            print(
-                f"Environment '{env_filter}' not found for group '{group}'",
-                file=sys.stderr,
-            )
+    for env_path in env_paths:
+        parts = env_path.split('/')
+        env_name = parts[0]
+        exp_name = parts[1] if len(parts) > 1 else None
+        if exp_filter != 'all' and exp_name != exp_filter:
             continue
+        groups = find_groups_for_env(env_path)
+        if group_filter != 'all':
+            groups = [g for g in groups if g == group_filter]
+            if not groups:
+                print(
+                    f"Group '{group_filter}' not found for environment '{env_path}'",
+                    file=sys.stderr,
+                )
+                continue
 
-        for env_path in filtered_paths:
+        for group in groups:
             for t_path, template in templates.items():
                 job_path = os.path.splitext(t_path)[0]
                 if not job_path.startswith(f'{group}/'):
@@ -256,9 +262,9 @@ def parse_cli_args(argv):
         print(f"Unknown env '{env_name}'", file=sys.stderr)
         sys.exit(1)
 
-    return group, env_name, exp
+    return env_name, exp, group
 
 
 if __name__ == '__main__':
-    group, env_name, exp = parse_cli_args(sys.argv[1:])
-    generate_all(group, env_name, exp)
+    env_name, exp, group = parse_cli_args(sys.argv[1:])
+    generate_all(env_name, exp, group)
