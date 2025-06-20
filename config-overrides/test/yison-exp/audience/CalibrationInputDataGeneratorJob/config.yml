@@ -1,2 +1,2 @@
 # Default config for CalibrationInputDataGeneratorJob in experiment
-lookBack: 7
+lookBack: 5
