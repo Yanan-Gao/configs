@@ -1,15 +1,11 @@
 env ?=
 exp ?=
-group ?=
 
 .PHONY: build clean
 
 ARGS := env=$(env)
 ifneq ($(strip $(exp)),)
 ARGS += exp=$(exp)
-endif
-ifneq ($(strip $(group)),)
-ARGS += group=$(group)
 endif
 
 build:

@@ -90,25 +90,30 @@ def find_env_roots():
 
 
 def find_groups_for_env(env_path):
-    """Return groups defined under the given environment path."""
+    """Return groups that contain at least one override under ``env_path``."""
     groups = []
     base = os.path.join(OVERRIDE_ROOT, env_path)
     if not os.path.isdir(base):
         return groups
     for entry in os.listdir(base):
-        if os.path.isdir(os.path.join(base, entry)):
-            groups.append(entry)
+        group_dir = os.path.join(base, entry)
+        if not os.path.isdir(group_dir):
+            continue
+        for root, _, files in os.walk(group_dir):
+            if any(f.endswith('.yml') for f in files):
+                groups.append(entry)
+                break
     return groups
 
 
-def generate_all(env_filter='all', exp_filter='all', group_filter='all'):
-    """Generate configuration files following the env -> exp -> group layout."""
-    # If a higher-level filter is set to 'all', ignore lower levels
+def generate_all(env_filter='all', exp_filter='all'):
+    """Generate configuration files following the env -> exp layout.
+
+    All groups that contain overrides under the selected environment are
+    processed automatically.
+    """
     if env_filter == 'all':
         exp_filter = 'all'
-        group_filter = 'all'
-    elif exp_filter == 'all':
-        group_filter = 'all'
     templates = find_templates()
     env_paths = find_env_roots()
     if env_filter != 'all':
@@ -124,14 +129,6 @@ def generate_all(env_filter='all', exp_filter='all', group_filter='all'):
         if exp_filter != 'all' and exp_name != exp_filter:
             continue
         groups = find_groups_for_env(env_path)
-        if group_filter != 'all':
-            groups = [g for g in groups if g == group_filter]
-            if not groups:
-                print(
-                    f"Group '{group_filter}' not found for environment '{env_path}'",
-                    file=sys.stderr,
-                )
-                continue
 
         for group in groups:
             for t_path, template in templates.items():
@@ -201,10 +198,9 @@ def generate_all(env_filter='all', exp_filter='all', group_filter='all'):
 
 
 def parse_cli_args(argv):
-    """Parse simple key=value arguments from ``argv`` in env->exp->group order."""
+    """Parse simple key=value arguments from ``argv`` in env -> exp order."""
     env_name = None
     exp = None
-    group = None
     for arg in argv:
         if '=' in arg:
             key, value = arg.split('=', 1)
@@ -212,24 +208,21 @@ def parse_cli_args(argv):
                 env_name = value
             elif key == 'exp':
                 exp = value
-            elif key == 'group':
-                group = value
     if env_name is None:
         print(
-            "Usage: generate_configs.py env=<env|all> exp=<exp|all> group=<group|all>",
+            "Usage: generate_configs.py env=<env|all> exp=<exp|all>",
             file=sys.stderr,
         )
         sys.exit(1)
 
     if env_name == 'all':
-        if exp is not None or group is not None:
+        if exp is not None:
             print(
-                "When env=all, exp and group must not be provided",
+                "When env=all, exp must not be provided",
                 file=sys.stderr,
             )
             sys.exit(1)
         exp = 'all'
-        group = 'all'
     elif env_name in ("experiment", "test"):
         if exp is None:
             print(
@@ -237,34 +230,21 @@ def parse_cli_args(argv):
                 file=sys.stderr,
             )
             sys.exit(1)
-        if group is None:
-            print(
-                "group parameter is required when env is experiment or test",
-                file=sys.stderr,
-            )
-            sys.exit(1)
-        # Missing values are not allowed; 'all' must be explicit
         if exp == "":
             print("exp must not be empty", file=sys.stderr)
-            sys.exit(1)
-        if group == "":
-            print("group must not be empty", file=sys.stderr)
             sys.exit(1)
     elif env_name == "prod":
         if exp is not None:
             print("exp parameter is not allowed when env=prod", file=sys.stderr)
-            sys.exit(1)
-        if group is None:
-            print("group parameter is required when env=prod", file=sys.stderr)
             sys.exit(1)
         exp = 'all'
     else:
         print(f"Unknown env '{env_name}'", file=sys.stderr)
         sys.exit(1)
 
-    return env_name, exp, group
+    return env_name, exp
 
 
 if __name__ == '__main__':
-    env_name, exp, group = parse_cli_args(sys.argv[1:])
-    generate_all(env_name, exp, group)
+    env_name, exp = parse_cli_args(sys.argv[1:])
+    generate_all(env_name, exp)
