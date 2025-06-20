@@ -18,8 +18,11 @@ Override files and generated configs are organized with the environment as the
 first directory level. Under each environment you can have one or more *group*
 directories that contain related jobs. For example, overrides for the `prod`
 environment might live under `config-overrides/prod/audience/` and the
-generated files would be written to `configs/prod/audience/`. Future groups
-such as `feature_store` or `kongming` can use the same pattern.
+generated files would be written to `configs/prod/audience/`. The generator
+automatically processes any group that contains at least one override so you do
+not need to specify the group name on the command line. Future groups such as
+`feature_store` or `kongming` can use the same pattern and will be picked up
+automatically when overrides are added.
 
 Each job template provides two files: `behavioral_config.yml.j2` for the
 behavior-related settings and `outputs.yml.j2` for any output paths. Running the
@@ -32,21 +35,21 @@ Run the generator:
 ```bash
 make build
 ```
-The Makefile forwards three parameters to `generate_configs.py` in the order
-they exist on disk: `env`, `exp` and `group`. None of them default to `all` so
+The Makefile forwards two parameters to `generate_configs.py`:
+`env` and `exp`. The script discovers groups by looking for overrides under the
+given environment and experiment. None of the parameters default to `all` so
 you must specify the desired value explicitly. To generate every configuration
 you can pass `env=all`:
 ```bash
 make build env=all
 ```
-When a higher-level option is set to `all` no lower level options may be
-specified. For example, it is invalid to provide `exp` or `group` when
-`env=all`.
+When a higher-level option is set to `all` no lower level option may be
+specified. For example, it is invalid to provide `exp` when `env=all`.
 When `env` is `experiment` or `test` you must also provide an `exp` value. The
 `prod` environment does not take an experiment parameter.
-To generate the configs for a single experiment and group you might run:
+To generate the configs for a single experiment you might run:
 ```bash
-make build env=experiment exp=yison-exp group=audience
+make build env=experiment exp=yison-exp
 ```
 The `generate_configs.py` script automatically installs `Jinja2` and `PyYAML` if they
 are missing. The `build` target runs the script and populates `configs` with rendered
