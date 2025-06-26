@@ -28,7 +28,9 @@ Each job template provides two files: `behavioral_config.yml.j2` for the
 behavior-related settings and `outputs.yml.j2` for any output paths. Running the
 generator renders these templates to `behavioral_config.yml` and `outputs.yml`
 under the corresponding job directory. Each generated YAML file contains plain
-key/value pairs.
+key/value pairs. The rendered YAML includes an `environment` key that is set to
+`prod`, `test` or `experiment`. Non-production files also include an
+`experimentName` key with the experiment identifier.
 
 ## Usage
 Run the generator:

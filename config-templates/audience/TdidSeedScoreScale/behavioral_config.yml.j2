@@ -1,4 +1,7 @@
 environment: {{ environment }}
+{% if experimentName is defined %}
+experimentName: {{ experimentName }}
+{% endif %}
 salt: "{{ salt | default('TRM') }}"
 raw_score_path: "{{ raw_score_path | default('s3://thetradedesk-mlplatform-us-east-1/data/' ~ ttd_write_env ~ '/audience/scores/tdid2seedid_raw/v=1/date=' ~ date_time.strftime(version_date_format) ~ '/') }}"
 seed_id_path: "{{ seed_id_path | default('s3://thetradedesk-mlplatform-us-east-1/data/' ~ ttd_write_env ~ '/audience/scores/seedids/v=2/date=' ~ date_time.strftime(version_date_format) ~ '/') }}"

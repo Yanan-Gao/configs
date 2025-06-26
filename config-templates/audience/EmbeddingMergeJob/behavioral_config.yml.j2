@@ -1,4 +1,7 @@
 environment: {{ environment }}
+{% if experimentName is defined %}
+experimentName: {{ experimentName }}
+{% endif %}
 model: "{{ model | default('RSM') }}"
 mlplatformS3Bucket: "{{ mlplatformS3Bucket | default('thetradedesk-mlplatform-us-east-1') }}"
 tmpNonSenEmbeddingDataS3Path: "{{ tmpNonSenEmbeddingDataS3Path | default('configdata/' ~ ttd_write_env ~ '/audience/embedding_temp/RSMV2/nonsensitive/v=1') }}"

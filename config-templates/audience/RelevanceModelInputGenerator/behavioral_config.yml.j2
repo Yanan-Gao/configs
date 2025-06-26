@@ -1,4 +1,7 @@
 environment: {{ environment }}
+{% if experimentName is defined %}
+experimentName: {{ experimentName }}
+{% endif %}
 model: "{{ model | default('RSMV2') }}"
 use_tmp_feature_generator: {{ use_tmp_feature_generator | default(false) | lower }}
 extra_sampling_threshold: {{ extra_sampling_threshold | default(0.05) }}

@@ -153,10 +153,16 @@ def generate_all(env_filter='all', exp_filter='all'):
                     with open(override_file) as f:
                         data = yaml.safe_load(f) or {}
 
-                data.setdefault('environment', env_path)
-                # Use the top-level override directory (e.g. 'prod', 'experiment',
-                # 'test') as the write environment for template paths.
-                partition = env_path.split('/')[0]
+                # Set default environment. Only non-prod environments include
+                # the experiment name.
+                data.setdefault('environment', env_name)
+                if env_name in ("experiment", "test"):
+                    data.setdefault('experimentName', exp_name)
+                else:
+                    data.pop('experimentName', None)
+                # Use the top-level directory (e.g. 'prod', 'experiment', 'test')
+                # as the write environment for template paths.
+                partition = env_name
                 data.setdefault('ttd_write_env', partition)
                 out_dir = os.path.join(OUTPUT_ROOT, env_path, group, job_name)
                 os.makedirs(out_dir, exist_ok=True)

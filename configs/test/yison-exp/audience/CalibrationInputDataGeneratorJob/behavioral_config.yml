@@ -1,4 +1,5 @@
-environment: test/yison-exp
+environment: test
+experimentName: yison-exp
 model: RSMV2
 tag: Seed_None
 version: 1

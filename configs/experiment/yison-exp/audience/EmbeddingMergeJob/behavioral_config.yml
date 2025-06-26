@@ -1,4 +1,5 @@
-environment: experiment/yison-exp
+environment: experiment
+experimentName: yison-exp
 model: RSM
 mlplatformS3Bucket: thetradedesk-mlplatform-us-east-1
 tmpNonSenEmbeddingDataS3Path: configdata/experiment/audience/embedding_temp/RSMV2/nonsensitive/v=1
