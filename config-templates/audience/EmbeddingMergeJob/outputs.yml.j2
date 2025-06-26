@@ -1,1 +1,4 @@
-{}
+tmpNonSenEmbeddingDataS3Path: "{{ tmpNonSenEmbeddingDataS3Path | default('configdata/' ~ data_write_partition ~ '/audience/embedding_temp/RSMV2/nonsensitive/v=1') }}"
+tmpSenEmbeddingDataS3Path: "{{ tmpSenEmbeddingDataS3Path | default('configdata/' ~ data_write_partition ~ '/audience/embedding_temp/RSMV2/sensitive/v=1') }}"
+embeddingDataS3Path: "{{ embeddingDataS3Path | default('configdata/' ~ data_write_partition ~ '/audience/embedding/RSMV2/v=1') }}"
+inferenceDataS3Path: "{{ inferenceDataS3Path | default('data/' ~ data_write_partition ~ '/audience/RSMV2/prediction') }}"
