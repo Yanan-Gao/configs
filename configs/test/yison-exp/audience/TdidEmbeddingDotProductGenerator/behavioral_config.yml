@@ -1,4 +1,5 @@
-environment: test/yison-exp
+environment: test
+experimentName: yison-exp
 salt: TRM
 tdid_emb_path: s3://thetradedesk-mlplatform-us-east-1/users/youjun.yuan/rsmv2/emb/agg_tdid/date=20250216/
 seed_emb_path: s3://thetradedesk-mlplatform-us-east-1/configdata/test/audience/embedding/RSMV2/RSMv2TestTreatment/v=1/20250216000000/embedding.parquet.gzip

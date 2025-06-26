@@ -1,4 +1,7 @@
 environment: {{ environment }}
+{% if experimentName is defined %}
+experimentName: {{ experimentName }}
+{% endif %}
 model: "{{ model | default('RSMV2') }}"
 modelName: "{{ modelName | default('RSM') }}"
 storageCloud: "{{ storageCloud | default('AWS') }}"

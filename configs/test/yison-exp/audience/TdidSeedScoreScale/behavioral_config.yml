@@ -1,4 +1,5 @@
-environment: test/yison-exp
+environment: test
+experimentName: yison-exp
 salt: TRM
 raw_score_path: s3://thetradedesk-mlplatform-us-east-1/data/test/audience/scores/tdid2seedid_raw/v=1/date={{
   date_time.strftime('%Y%m%d') }}/
