@@ -21,7 +21,6 @@ newSeedLookBackDays: {{ newSeedLookBackDays | default(7) }}
 userDownSampleHitPopulation: {{ userDownSampleHitPopulation | default(100000) }}
 lookBack: {{ lookBack | default(3) }}
 policyS3Bucket: "{{ policyS3Bucket | default('thetradedesk-mlplatform-us-east-1') }}"
-policyS3Path: "{{ policyS3Path | default('configdata/' ~ ttd_write_env ~ '/audience/policyTable/' ~ (model | default('RSMV2')) ~ '/v=1') }}"
 maxVersionsToKeep: {{ maxVersionsToKeep | default(30) }}
 reuseAggregatedSeedIfPossible: {{ reuseAggregatedSeedIfPossible | default(true) | lower }}
 bidImpressionRepartitionNum: {{ bidImpressionRepartitionNum | default(4096) }}
