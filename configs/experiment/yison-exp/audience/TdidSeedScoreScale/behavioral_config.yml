@@ -1,6 +1,10 @@
 environment: experiment
 experimentName: yison-exp
 salt: TRM
+seed_id_path: s3://thetradedesk-mlplatform-us-east-1/data/experiment/yison-exp/audience/scores/seedids/v=2/date={{
+  date_time.strftime('%Y%m%d') }}/
+raw_score_path: s3://thetradedesk-mlplatform-us-east-1/data/experiment/yison-exp/audience/scores/tdid2seedid_raw/v=1/date={{
+  date_time.strftime('%Y%m%d') }}/
 policy_table_path: s3://thetradedesk-mlplatform-us-east-1/configdata/prod/audience/policyTable/RSM/v=1/{{
   date_time.strftime('%Y%m%d') }}000000/
 smooth_factor: 30.0
