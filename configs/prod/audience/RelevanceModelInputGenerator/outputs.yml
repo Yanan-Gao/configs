@@ -1,5 +1,4 @@
-rsm_v2_feature_dest_path: s3a://thetradedesk-mlplatform-us-east-1/configdata/prod/audience/schema/RSMV2/v=1/{{
+rsmV2FeatureDestPath: s3a://thetradedesk-mlplatform-us-east-1/configdata/prod/audience/schema/RSMV2/v=1/{{
   date_time.strftime('%Y%m%d') }}/features.json
-feature_store_read_env: prod
-opt_in_seed_empty_tag_path: s3a://thetradedesk-mlplatform-us-east-1/data/prod/audience/RSMV2/Seed_None/v=1/{{
+optInSeedEmptyTagPath: s3a://thetradedesk-mlplatform-us-east-1/data/prod/audience/RSMV2/Seed_None/v=1/{{
   date_time.strftime('%Y%m%d') }}/_Full_EMPTY
