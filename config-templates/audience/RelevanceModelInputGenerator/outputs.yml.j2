@@ -1,3 +1,3 @@
-rsm_v2_feature_dest_path: "{{ rsm_v2_feature_dest_path | default('s3a://thetradedesk-mlplatform-us-east-1/configdata/' ~ data_write_partition ~ '/audience/schema/RSMV2/v=1/' ~ date_time.strftime(version_date_format) ~ '/features.json') }}"
-feature_store_read_env: "{{ feature_store_read_env | default(data_write_partition) }}"
-opt_in_seed_empty_tag_path: "{{ opt_in_seed_empty_tag_path | default('s3a://thetradedesk-mlplatform-us-east-1/data/' ~ data_write_partition ~ '/audience/RSMV2/Seed_None/v=1/' ~ date_time.strftime(version_date_format) ~ '/_' ~ (sub_folder | default('Full')) ~ '_EMPTY') }}"
+rsm_v2_feature_dest_path: "{{ rsm_v2_feature_dest_path | default('s3a://thetradedesk-mlplatform-us-east-1/configdata/' ~ data_namespace ~ '/audience/schema/RSMV2/v=1/' ~ date_time.strftime(version_date_format) ~ '/features.json') }}"
+feature_store_read_env: "{{ feature_store_read_env | default(data_namespace) }}"
+opt_in_seed_empty_tag_path: "{{ opt_in_seed_empty_tag_path | default('s3a://thetradedesk-mlplatform-us-east-1/data/' ~ data_namespace ~ '/audience/RSMV2/Seed_None/v=1/' ~ date_time.strftime(version_date_format) ~ '/_' ~ (sub_folder | default('Full')) ~ '_EMPTY') }}"

@@ -1,2 +1,2 @@
-inputDataS3Path: "{{ inputDataS3Path | default('data/' ~ data_write_partition ~ '/audience/RSMV2/Imp_Seed_None/v=1') }}"
-populationOutputData3Path: "{{ populationOutputData3Path | default('data/' ~ data_write_partition ~ '/audience/RSMV2/Seed_None/v=1') }}"
+inputDataS3Path: "{{ inputDataS3Path | default('data/' ~ data_namespace ~ '/audience/RSMV2/Imp_Seed_None/v=1') }}"
+populationOutputData3Path: "{{ populationOutputData3Path | default('data/' ~ data_namespace ~ '/audience/RSMV2/Seed_None/v=1') }}"

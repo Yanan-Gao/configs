@@ -1,2 +1,1 @@
-oosDataS3Path: "{{ oosDataS3Path | default('data/' ~ data_write_partition ~ '/audience/RSMV2/Seed_None/v=1') }}"
-calibrationOutputDataS3Path: "{{ calibrationOutputDataS3Path | default('data/' ~ data_write_partition ~ '/audience/RSMV2/Seed_None/v=1') }}"
+calibrationOutputDataS3Path: "{{ calibrationOutputDataS3Path | default('data/' ~ data_namespace ~ '/audience/RSMV2/Seed_None/v=1') }}"
