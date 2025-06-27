@@ -51,7 +51,7 @@ When `env` is `experiment` or `test` you must also provide an `exp` value. The
 `prod` environment does not take an experiment parameter.
 To generate the configs for a single experiment you might run:
 ```bash
-make build env=experiment exp=yison-exp
+make build env=experiment exp=yanan-demo
 ```
 The `generate_configs.py` script automatically installs `Jinja2` and `PyYAML` if they
 are missing. The `build` target runs the script and populates `configs` with rendered

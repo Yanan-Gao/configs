@@ -1,4 +1,0 @@
-rsmV2FeatureDestPath: s3a://thetradedesk-mlplatform-us-east-1/configdata/test/yison-exp/audience/schema/RSMV2/v=1/{{
-  date_time.strftime('%Y%m%d') }}/features.json
-optInSeedEmptyTagPath: s3a://thetradedesk-mlplatform-us-east-1/data/test/yison-exp/audience/RSMV2/Seed_None/v=1/{{
-  date_time.strftime('%Y%m%d') }}/_Full_EMPTY

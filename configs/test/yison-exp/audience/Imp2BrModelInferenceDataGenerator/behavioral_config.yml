@@ -1,5 +1,0 @@
-environment: test
-experimentName: yison-exp
-bidImpressionsS3Path: prod/bidsimpressions/
-feature_path: s3://thetradedesk-mlplatform-us-east-1/models/prod/RSM/full_model/{{
-  date_time.strftime('%Y%m%d') }}/features.json
