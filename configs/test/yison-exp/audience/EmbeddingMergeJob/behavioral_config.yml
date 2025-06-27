@@ -9,3 +9,6 @@ locationFactor: 0.8
 baselineHitRate: 1e-08
 recursiveWeight: 0.1
 writeMode: overwrite
+tmpNonSenEmbeddingDataS3Path: configdata/test/yison-exp/audience/embedding_temp/RSMV2/nonsensitive/v=1
+tmpSenEmbeddingDataS3Path: configdata/test/yison-exp/audience/embedding_temp/RSMV2/sensitive/v=1
+inferenceDataS3Path: data/test/yison-exp/audience/RSMV2/prediction

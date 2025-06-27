@@ -160,13 +160,13 @@ def generate_all(env_filter='all', exp_filter='all'):
                     data.setdefault('experimentName', exp_name)
                 else:
                     data.pop('experimentName', None)
-                # Default partition for writing output data. Combine the
+                # Default namespace for reading and writing data. Combine the
                 # environment and experiment name when available.
                 if exp_name:
                     partition = f"{env_name}/{exp_name}"
                 else:
                     partition = env_name
-                data.setdefault('data_write_partition', partition)
+                data.setdefault('data_namespace', partition)
                 out_dir = os.path.join(OUTPUT_ROOT, env_path, group, job_name)
                 os.makedirs(out_dir, exist_ok=True)
                 out_path = os.path.join(out_dir, filename)
