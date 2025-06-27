@@ -2,6 +2,7 @@ import os
 import sys
 import subprocess
 import importlib
+from enum import Enum
 
 # Ensure the script is executed with Python 3
 if sys.version_info.major < 3:
@@ -36,6 +37,14 @@ class DateTimePlaceholder:
         # Preserve the formatting expression for run time resolution
         return f"{{{{ date_time.strftime('{fmt}') }}}}"
 
+
+class Env(str, Enum):
+    """Valid deployment environments."""
+
+    PROD = "prod"
+    EXPERIMENT = "experiment"
+    TEST = "test"
+
 TEMPLATE_ROOT = 'config-templates'
 OVERRIDE_ROOT = 'config-overrides'
 OUTPUT_ROOT = 'configs'
@@ -45,11 +54,11 @@ OUTPUT_ROOT = 'configs'
 # render directly to ``behavioral_config.yml`` and ``outputs.yml`` under
 # ``configs`` with plain key/value pairs.
 
-env = Environment(
+jinja_env = Environment(
     loader=FileSystemLoader(TEMPLATE_ROOT),
     undefined=StrictUndefined,
 )
-env.globals.update(
+jinja_env.globals.update(
     # Use a placeholder so date_time is resolved at run time
     date_time=DateTimePlaceholder(),
     version_date_format='%Y%m%d',
@@ -62,15 +71,11 @@ def find_templates():
         for f in files:
             if f.endswith('.j2'):
                 rel = os.path.relpath(os.path.join(root, f), TEMPLATE_ROOT)
-                rel = rel.replace(os.sep, "/")  # ensure Jinja2-compatible separators
-                templates[rel] = env.get_template(rel)
+                # ensure Jinja2-compatible separators
+                rel = rel.replace(os.sep, "/")
+                templates[rel] = jinja_env.get_template(rel)
     return templates
 
-
-def find_groups():
-    """Return the list of top-level job groups under ``TEMPLATE_ROOT``."""
-    return [d for d in os.listdir(TEMPLATE_ROOT)
-            if os.path.isdir(os.path.join(TEMPLATE_ROOT, d))]
 
 def find_env_roots():
     """Return all environment paths (e.g. ``prod`` or ``experiment/exp1``)."""
@@ -106,6 +111,130 @@ def find_groups_for_env(env_path):
     return groups
 
 
+def parse_env_path(env_path):
+    """Return (env_name, exp_name) tuple from a path like ``prod`` or ``experiment/foo``."""
+    parts = env_path.split('/')
+    env_name = parts[0]
+    exp_name = parts[1] if len(parts) > 1 else None
+    return env_name, exp_name
+
+
+def validate_cli_args(env_name, exp):
+    """Validate and normalize the environment/experiment arguments."""
+    if env_name == 'all':
+        if exp is not None:
+            print(
+                "When env=all, exp must not be provided",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+        return env_name, 'all'
+
+    try:
+        env = Env(env_name)
+    except ValueError:
+        print(f"Unknown env '{env_name}'", file=sys.stderr)
+        sys.exit(1)
+
+    if env is Env.PROD:
+        if exp is not None:
+            print("exp parameter is not allowed when env=prod", file=sys.stderr)
+            sys.exit(1)
+        return env.value, 'all'
+
+    if not exp:
+        print(
+            "exp parameter is required when env is experiment or test",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    return env.value, exp
+
+
+def render_job(env_name, exp_name, env_path, group, job_name, template, filename):
+    """Render a single job configuration file."""
+    override_file = os.path.join(
+        OVERRIDE_ROOT,
+        env_path,
+        group,
+        job_name,
+        'config.yml',
+    )
+
+    data = {}
+    if os.path.exists(override_file):
+        with open(override_file) as f:
+            data = yaml.safe_load(f) or {}
+
+    data.setdefault('environment', env_name)
+    if env_name in (Env.EXPERIMENT.value, Env.TEST.value):
+        data.setdefault('experimentName', exp_name)
+    else:
+        data.pop('experimentName', None)
+
+    if exp_name:
+        partition = f"{env_name}/{exp_name}"
+    else:
+        partition = env_name
+    data.setdefault('data_namespace', partition)
+
+    out_dir = os.path.join(OUTPUT_ROOT, env_path, group, job_name)
+    os.makedirs(out_dir, exist_ok=True)
+    out_path = os.path.join(out_dir, filename)
+    try:
+        rendered = template.render(**data)
+    except exceptions.UndefinedError as e:
+        message = str(e)
+        missing_key = None
+        if "'" in message:
+            parts = message.split("'")
+            if len(parts) >= 2:
+                missing_key = parts[1]
+        if missing_key:
+            print(
+                f"Error generating {env_path}/{job_name}/{filename}: "
+                f"configuration '{missing_key}' is required but no value was provided "
+                f"in {override_file}",
+                file=sys.stderr,
+            )
+        else:
+            print(
+                f"Error generating {env_path}/{job_name}/{filename}: {message}",
+                file=sys.stderr,
+            )
+        return
+
+    data_dict = yaml.safe_load(rendered) or {}
+    data_dict.pop('job_name', None)
+
+    with open(out_path, 'w') as f:
+        yaml.safe_dump(
+            data_dict,
+            f,
+            sort_keys=False,
+        )
+    print(f'Wrote {out_path}')
+
+
+def generate_group(env_name, exp_name, env_path, group, templates):
+    """Generate all jobs for a single group."""
+    for t_path, template in templates.items():
+        job_path = os.path.splitext(t_path)[0]
+        if not job_path.startswith(f'{group}/'):
+            continue
+        job_dir, filename = os.path.split(job_path)
+        job_name = job_dir[len(f'{group}/'):]
+        render_job(env_name, exp_name, env_path, group, job_name, template, filename)
+
+
+def generate_env(env_name, exp_name, env_path, templates):
+    """Generate all groups for a single environment path."""
+    groups = find_groups_for_env(env_path)
+    for group in groups:
+        generate_group(env_name, exp_name, env_path, group, templates)
+
+
 def generate_all(env_filter='all', exp_filter='all'):
     """Generate configuration files following the env -> exp layout.
 
@@ -123,87 +252,10 @@ def generate_all(env_filter='all', exp_filter='all'):
             return
 
     for env_path in env_paths:
-        parts = env_path.split('/')
-        env_name = parts[0]
-        exp_name = parts[1] if len(parts) > 1 else None
+        env_name, exp_name = parse_env_path(env_path)
         if exp_filter != 'all' and exp_name != exp_filter:
             continue
-        groups = find_groups_for_env(env_path)
-
-        for group in groups:
-            for t_path, template in templates.items():
-                job_path = os.path.splitext(t_path)[0]
-                if not job_path.startswith(f'{group}/'):
-                    continue
-                job_dir, filename = os.path.split(job_path)
-                job_name = job_dir[len(f'{group}/'):]
-
-
-
-                override_file = os.path.join(
-                    OVERRIDE_ROOT,
-                    env_path,
-                    group,
-                    job_name,
-                    'config.yml',
-                )
-
-                data = {}
-                if os.path.exists(override_file):
-                    with open(override_file) as f:
-                        data = yaml.safe_load(f) or {}
-
-                # Set default environment. Only non-prod environments include
-                # the experiment name.
-                data.setdefault('environment', env_name)
-                if env_name in ("experiment", "test"):
-                    data.setdefault('experimentName', exp_name)
-                else:
-                    data.pop('experimentName', None)
-                # Default namespace for reading and writing data. Combine the
-                # environment and experiment name when available.
-                if exp_name:
-                    partition = f"{env_name}/{exp_name}"
-                else:
-                    partition = env_name
-                data.setdefault('data_namespace', partition)
-                out_dir = os.path.join(OUTPUT_ROOT, env_path, group, job_name)
-                os.makedirs(out_dir, exist_ok=True)
-                out_path = os.path.join(out_dir, filename)
-                try:
-                    rendered = template.render(**data)
-                except exceptions.UndefinedError as e:
-                    message = str(e)
-                    missing_key = None
-                    if "'" in message:
-                        parts = message.split("'")
-                        if len(parts) >= 2:
-                            missing_key = parts[1]
-                    if missing_key:
-                        print(
-                            f"Error generating {env_path}/{job_name}/{filename}: "
-                            f"configuration '{missing_key}' is required but no value was provided "
-                            f"in {override_file}",
-                            file=sys.stderr,
-                        )
-                    else:
-                        print(
-                            f"Error generating {env_path}/{job_name}/{filename}: {message}",
-                            file=sys.stderr,
-                        )
-                    continue
-
-                data_dict = yaml.safe_load(rendered) or {}
-                # allow templates to include optional 'job_name' field but ignore it
-                data_dict.pop('job_name', None)
-
-                with open(out_path, 'w') as f:
-                    yaml.safe_dump(
-                        data_dict,
-                        f,
-                        sort_keys=False,
-                    )
-                print(f'Wrote {out_path}')
+        generate_env(env_name, exp_name, env_path, templates)
 
 
 def parse_cli_args(argv):
@@ -224,34 +276,7 @@ def parse_cli_args(argv):
         )
         sys.exit(1)
 
-    if env_name == 'all':
-        if exp is not None:
-            print(
-                "When env=all, exp must not be provided",
-                file=sys.stderr,
-            )
-            sys.exit(1)
-        exp = 'all'
-    elif env_name in ("experiment", "test"):
-        if exp is None:
-            print(
-                "exp parameter is required when env is experiment or test",
-                file=sys.stderr,
-            )
-            sys.exit(1)
-        if exp == "":
-            print("exp must not be empty", file=sys.stderr)
-            sys.exit(1)
-    elif env_name == "prod":
-        if exp is not None:
-            print("exp parameter is not allowed when env=prod", file=sys.stderr)
-            sys.exit(1)
-        exp = 'all'
-    else:
-        print(f"Unknown env '{env_name}'", file=sys.stderr)
-        sys.exit(1)
-
-    return env_name, exp
+    return validate_cli_args(env_name, exp)
 
 
 if __name__ == '__main__':
