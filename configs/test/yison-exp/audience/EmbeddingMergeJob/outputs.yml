@@ -1,1 +1,4 @@
-{}
+tmpNonSenEmbeddingDataS3Path: configdata/test/yison-exp/audience/embedding_temp/RSMV2/nonsensitive/v=1
+tmpSenEmbeddingDataS3Path: configdata/test/yison-exp/audience/embedding_temp/RSMV2/sensitive/v=1
+embeddingDataS3Path: configdata/test/yison-exp/audience/embedding/RSMV2/v=1
+inferenceDataS3Path: data/test/yison-exp/audience/RSMV2/prediction

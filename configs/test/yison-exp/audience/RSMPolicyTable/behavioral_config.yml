@@ -19,7 +19,6 @@ newSeedLookBackDays: 7
 userDownSampleHitPopulation: 100000
 lookBack: 3
 policyS3Bucket: thetradedesk-mlplatform-us-east-1
-policyS3Path: configdata/test/audience/policyTable/RSMV2/v=1
 maxVersionsToKeep: 30
 reuseAggregatedSeedIfPossible: true
 bidImpressionRepartitionNum: 4096

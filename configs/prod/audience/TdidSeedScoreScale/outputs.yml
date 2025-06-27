@@ -1,1 +1,8 @@
-{}
+raw_score_path: s3://thetradedesk-mlplatform-us-east-1/data/prod/audience/scores/tdid2seedid_raw/v=1/date={{
+  date_time.strftime('%Y%m%d') }}/
+seed_id_path: s3://thetradedesk-mlplatform-us-east-1/data/prod/audience/scores/seedids/v=2/date={{
+  date_time.strftime('%Y%m%d') }}/
+out_path: s3://thetradedesk-mlplatform-us-east-1/data/prod/audience/scores/tdid2seedid/v=1/date={{
+  date_time.strftime('%Y%m%d') }}/
+population_score_path: s3://thetradedesk-mlplatform-us-east-1/data/prod/audience/scores/seedpopulationscore/v=1/date={{
+  date_time.strftime('%Y%m%d') }}/

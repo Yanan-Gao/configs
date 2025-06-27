@@ -1,1 +1,5 @@
-{}
+rsm_v2_feature_dest_path: s3a://thetradedesk-mlplatform-us-east-1/configdata/experiment/yison-exp/audience/schema/RSMV2/v=1/{{
+  date_time.strftime('%Y%m%d') }}/features.json
+feature_store_read_env: experiment/yison-exp
+opt_in_seed_empty_tag_path: s3a://thetradedesk-mlplatform-us-east-1/data/experiment/yison-exp/audience/RSMV2/Seed_None/v=1/{{
+  date_time.strftime('%Y%m%d') }}/_Full_EMPTY

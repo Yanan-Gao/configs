@@ -5,6 +5,5 @@ version: 1
 lookBack: 3
 startDate: '2025-02-13'
 oosDataS3Bucket: thetradedesk-mlplatform-us-east-1
-oosDataS3Path: data/prod/audience/RSMV2/Seed_None/v=1
 subFolderKey: mixedForward
 subFolderValue: Calibration

@@ -1,10 +1,6 @@
 environment: prod
 model: RSM
 mlplatformS3Bucket: thetradedesk-mlplatform-us-east-1
-tmpNonSenEmbeddingDataS3Path: configdata/prod/audience/embedding_temp/RSMV2/nonsensitive/v=1
-tmpSenEmbeddingDataS3Path: configdata/prod/audience/embedding_temp/RSMV2/sensitive/v=1
-embeddingDataS3Path: configdata/prod/audience/embedding/RSMV2/v=1
-inferenceDataS3Path: data/prod/audience/RSMV2/prediction
 embeddingRecentVersion: None
 anchorStartDate: '2025-03-05'
 smoothFactor: 30.0
