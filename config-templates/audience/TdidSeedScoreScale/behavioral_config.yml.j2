@@ -11,3 +11,6 @@ userLevelUpperCap: {{ userLevelUpperCap | default(1000000.0) }}
 accuracy: {{ accuracy | default(1000) }}
 sampleRateForPercentile: {{ sampleRateForPercentile | default(0.3) }}
 skipPercentile: {{ skipPercentile | default(true) | lower }}
+
+audienceJarBranch: "{{ audienceJarBranch | default('master') }}"
+audienceJarVersion: "{{ audienceJarVersion | default('latest') }}"

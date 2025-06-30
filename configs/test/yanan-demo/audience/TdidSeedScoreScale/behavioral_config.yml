@@ -12,3 +12,5 @@ userLevelUpperCap: 1000000.0
 accuracy: 1000
 sampleRateForPercentile: 0.3
 skipPercentile: true
+audienceJarBranch: master
+audienceJarVersion: latest

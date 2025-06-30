@@ -39,3 +39,6 @@ selectedPixelsConfigPath: "{{ selectedPixelsConfigPath | default('s3a://thetrade
 useSelectedPixel: {{ useSelectedPixel | default(false) | lower }}
 campaignFlightStartingBufferInDays: {{ campaignFlightStartingBufferInDays | default(14) }}
 allRSMSeed: {{ allRSMSeed | default(false) | lower }}
+
+audienceJarBranch: "{{ audienceJarBranch | default('master') }}"
+audienceJarVersion: "{{ audienceJarVersion | default('latest') }}"
