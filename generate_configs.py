@@ -3,6 +3,7 @@ import sys
 import subprocess
 import importlib
 from enum import Enum
+import re
 
 # Ensure the script is executed with Python 3
 if sys.version_info.major < 3:
@@ -186,12 +187,10 @@ def render_job(env_name, exp_name, env_path, group, job_name, template, filename
         rendered = template.render(**data)
     except exceptions.UndefinedError as e:
         message = str(e)
-        missing_key = None
-        if "'" in message:
-            parts = message.split("'")
-            if len(parts) >= 2:
-                missing_key = parts[1]
-        if missing_key:
+        # Try to extract the missing variable name using regex, but always print the full message
+        match = re.search(r"'([^']+)'", message)
+        if match:
+            missing_key = match.group(1)
             print(
                 f"Error generating {env_path}/{job_name}/{filename}: "
                 f"configuration '{missing_key}' is required but no value was provided "
