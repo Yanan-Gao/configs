@@ -6,3 +6,5 @@ subFolderKey: split
 subFolderValue: Population
 syntheticIdLength: 500
 inputDataS3Path: data/prod/audience/RSMV2/Imp_Seed_None/v=1
+audienceJarBranch: master
+audienceJarVersion: latest

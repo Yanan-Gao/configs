@@ -11,3 +11,6 @@ oosDataS3Bucket: "{{ oosDataS3Bucket | default('thetradedesk-mlplatform-us-east-
 subFolderKey: "{{ subFolderKey | default('mixedForward') }}"
 subFolderValue: "{{ subFolderValue | default('Calibration') }}"
 oosDataS3Path: "{{ oosDataS3Path | default('data/' ~ data_namespace ~ '/audience/RSMV2/Seed_None/v=1') }}"
+
+audienceJarBranch: "{{ audienceJarBranch | default('master') }}"
+audienceJarVersion: "{{ audienceJarVersion | default('latest') }}"
