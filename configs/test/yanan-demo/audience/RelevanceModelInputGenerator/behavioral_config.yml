@@ -26,3 +26,5 @@ maxLabelLengthPerRow: 50
 minRowNumsPerPartition: 100000
 trainValHoldoutTotalSplits: 10
 activeSeedIdWhiteList: ''
+audienceJarBranch: master
+audienceJarVersion: latest

@@ -11,3 +11,5 @@ writeMode: overwrite
 tmpNonSenEmbeddingDataS3Path: configdata/prod/audience/embedding_temp/RSMV2/nonsensitive/v=1
 tmpSenEmbeddingDataS3Path: configdata/prod/audience/embedding_temp/RSMV2/sensitive/v=1
 inferenceDataS3Path: data/prod/audience/RSMV2/prediction
+audienceJarBranch: master
+audienceJarVersion: latest

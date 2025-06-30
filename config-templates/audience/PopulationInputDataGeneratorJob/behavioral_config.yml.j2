@@ -9,3 +9,6 @@ subFolderKey: "{{ subFolderKey | default('split') }}"
 subFolderValue: "{{ subFolderValue | default('Population') }}"
 syntheticIdLength: {{ syntheticIdLength | default(500) }}
 inputDataS3Path: "{{ inputDataS3Path | default('data/' ~ data_namespace ~ '/audience/RSMV2/Imp_Seed_None/v=1') }}"
+
+audienceJarBranch: "{{ audienceJarBranch | default('master') }}"
+audienceJarVersion: "{{ audienceJarVersion | default('latest') }}"

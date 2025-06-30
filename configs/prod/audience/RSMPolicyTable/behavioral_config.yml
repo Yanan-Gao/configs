@@ -36,3 +36,5 @@ selectedPixelsConfigPath: s3a://thetradedesk-mlplatform-us-east-1/configdata/pro
 useSelectedPixel: false
 campaignFlightStartingBufferInDays: 14
 allRSMSeed: false
+audienceJarBranch: master
+audienceJarVersion: latest
