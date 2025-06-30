@@ -9,3 +9,5 @@ oosDataS3Bucket: thetradedesk-mlplatform-us-east-1
 subFolderKey: mixedForward
 subFolderValue: Calibration
 oosDataS3Path: data/experiment/yanan-demo/audience/RSMV2/Seed_None/v=1
+audienceJarBranch: master
+audienceJarVersion: latest

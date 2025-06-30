@@ -8,3 +8,5 @@ avail_path: s3://thetradedesk-mlplatform-us-east-1/data/prodTest/audience/RSMV2/
 seed_density_path: s3://thetradedesk-mlplatform-us-east-1/features/feature_store/prodTest/profiles/source=bidsimpression/index=FeatureKeyValue/job=DailyDensityScoreReIndexingJob/config=SyntheticIdDensityScoreCategorized/date=20250216/
 density_split: -1
 EmbeddingSize: 64
+audienceJarBranch: master
+audienceJarVersion: latest

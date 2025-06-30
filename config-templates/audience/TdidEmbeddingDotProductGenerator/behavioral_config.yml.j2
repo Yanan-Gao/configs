@@ -11,3 +11,6 @@ avail_path: "{{ avail_path | default('s3://thetradedesk-mlplatform-us-east-1/dat
 seed_density_path: "{{ seed_density_path | default('s3://thetradedesk-mlplatform-us-east-1/features/feature_store/prodTest/profiles/source=bidsimpression/index=FeatureKeyValue/job=DailyDensityScoreReIndexingJob/config=SyntheticIdDensityScoreCategorized/date=20250216/') }}"
 density_split: {{ density_split | default(-1) }}
 EmbeddingSize: {{ EmbeddingSize | default(64) }}
+
+audienceJarBranch: "{{ audienceJarBranch | default('master') }}"
+audienceJarVersion: "{{ audienceJarVersion | default('latest') }}"

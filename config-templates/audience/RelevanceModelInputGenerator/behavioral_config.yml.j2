@@ -28,3 +28,6 @@ maxLabelLengthPerRow: {{ maxLabelLengthPerRow | default(50) }}
 minRowNumsPerPartition: {{ minRowNumsPerPartition | default(100000) }}
 trainValHoldoutTotalSplits: {{ trainValHoldoutTotalSplits | default(10) }}
 activeSeedIdWhiteList: "{{ activeSeedIdWhiteList | default('') }}"
+
+audienceJarBranch: "{{ audienceJarBranch | default('master') }}"
+audienceJarVersion: "{{ audienceJarVersion | default('latest') }}"
