@@ -28,15 +28,15 @@ import yaml
 from jinja2 import Environment, FileSystemLoader, StrictUndefined, exceptions
 
 
-class DateTimePlaceholder:
-    """Object that renders Jinja placeholders for date_time."""
+class RunDatePlaceholder:
+    """Object that renders Jinja placeholders for run_date."""
 
     def __str__(self):
-        return "{{ date_time }}"
+        return "{{ run_date }}"
 
     def strftime(self, fmt):
         # Preserve the formatting expression for run time resolution
-        return f"{{{{ date_time.strftime('{fmt}') }}}}"
+        return f"{{{{ run_date.strftime('{fmt}') }}}}"
 
 
 class Env(str, Enum):
@@ -60,8 +60,8 @@ jinja_env = Environment(
     undefined=StrictUndefined,
 )
 jinja_env.globals.update(
-    # Use a placeholder so date_time is resolved at run time
-    date_time=DateTimePlaceholder(),
+    # Use a placeholder so run_date is resolved at run time
+    run_date=RunDatePlaceholder(),
     version_date_format='%Y%m%d',
 )
 
