@@ -3,6 +3,7 @@ model: RSMV2
 tag: Seed_None
 version: 1
 lookBack: 3
+date: '{{ run_date }}'
 startDate: '2025-02-13'
 oosDataS3Bucket: thetradedesk-mlplatform-us-east-1
 subFolderKey: mixedForward
